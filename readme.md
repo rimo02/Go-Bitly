@@ -20,7 +20,7 @@ curl -X POST http://localhost:8080/shorten \
 -d '{
   "lurl": "https://example.com",
   "days": 1,
-  "hours": 2
+  "hours": 12
 }'
 ```
 
