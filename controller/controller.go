@@ -29,13 +29,31 @@ func ShortenTheUrl(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
+	defaultExpiry := 24 * 60 * 60 // 1 day
+	userExpiry := 0
+
+	if req.Days > 0 {
+		userExpiry += 60 * 24 * 60 * req.Days
+	}
+	if req.Hours > 0 {
+		userExpiry += 60 * 60 * req.Hours
+	}
+	if req.Minutes > 0 {
+		userExpiry += req.Minutes * 60
+	}
+	if userExpiry > 0 {
+		defaultExpiry = userExpiry
+	}
+
+	expirationTime := int(time.Now().Add(time.Duration(defaultExpiry) * time.Second).Unix())
+
 	shortUrl := helper.Shortener(6) //generate a random string of 6 length total combinations = 62^6
 	resp := &models.Response{
 		ID:              primitive.NewObjectID(),
 		LongUrl:         req.LongUrl,
 		ShortUrl:        shortUrl,
 		Hits:            0,
-		ExpiresAt:       int(time.Now().Add(24 * time.Hour).Unix()), // will expire after 1 day
+		ExpiresAt:       expirationTime,
 		LastRequestTime: int(time.Now().Unix()),
 	}
 	_, err := collection.InsertOne(ctx, resp)

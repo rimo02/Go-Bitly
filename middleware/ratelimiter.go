@@ -13,8 +13,8 @@ import (
 const (
 	rateLimit       = 100.0 / 3600.0 // 100 requests for every client every 1 hour
 	burstLimit      = 100            // maximum upto 100 requests a client can make at once
-	cleanUpInterval = time.Minute
-	idleTimeout     = time.Hour
+	cleanUpInterval = time.Minute    // checks for idle clients every cleanUp Interval
+	idleTimeout     = time.Hour      // checks if the client has been inactive fir idle time
 )
 
 type Client struct {
