@@ -9,4 +9,5 @@ import (
 var RegisterRoutes = func(c *gin.Engine) {
 	c.POST("/shorten", controller.ShortenTheUrl)
 	c.GET("/:shorturl", middleware.PerClientRateLimiter(), controller.GetTheUrl)
+	c.GET("/dashboard/:shorturl", controller.Dashboard)
 }
