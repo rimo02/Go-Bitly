@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"github.com/patrickmn/go-cache"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
@@ -10,7 +11,11 @@ import (
 	"time"
 )
 
-var Client *mongo.Client
+var (
+	Client  *mongo.Client
+	Cache   *cache.Cache
+	MaxHits = 1000
+)
 
 func ConnectDB() *mongo.Client {
 	var uri = os.Getenv("DB_HOST")

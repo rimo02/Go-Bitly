@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/patrickmn/go-cache"
 	"github.com/rimo02/url-shortener/controller"
 	"github.com/rimo02/url-shortener/database"
 	"github.com/rimo02/url-shortener/routes"
@@ -23,6 +24,8 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+
+	database.Cache = cache.New(1*time.Hour, 3*time.Minute)
 	database.ConnectDB()
 }
 func main() {

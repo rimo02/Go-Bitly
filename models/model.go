@@ -5,10 +5,10 @@ import (
 )
 
 type Request struct {
-	LongUrl   string `json:"lurl"`
-	Hours     int    `json:"hrs"`
-	Minutes   int    `json:"mins"`
-	Days      int    `json:"days"`
+	LongUrl string `json:"lurl"`
+	Hours   int    `json:"hrs"`
+	Minutes int    `json:"mins"`
+	Days    int    `json:"days"`
 }
 
 type Response struct {
