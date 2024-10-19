@@ -35,7 +35,7 @@ var (
 func getClientLimiter(ip string) *rate.Limiter {
 	mu.Lock()
 	defer mu.Unlock()
-	limiter, exist := clients[ip]
+	client, exist := clients[ip]
 
 	if !exist {
 		limiter := rate.NewLimiter(rateLimit, burstLimit)
@@ -43,9 +43,12 @@ func getClientLimiter(ip string) *rate.Limiter {
 			limiter:  limiter,
 			lastSeen: time.Now(),
 		}
+		return limiter
 	}
-	return limiter.limiter
+	client.lastSeen = time.Now()
+	return client.limiter
 }
+
 
 func cleanUpOldclients() {
 	for {
