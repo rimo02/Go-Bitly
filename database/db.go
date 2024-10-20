@@ -18,9 +18,9 @@ var (
 )
 
 func ConnectDB() *mongo.Client {
-	var uri = os.Getenv("DB_HOST")
+	var uri = os.Getenv("MONGO_URI")
 
-	clientOptions := options.Client().ApplyURI(fmt.Sprintf("mongodb://localhost:%s", uri))
+	clientOptions := options.Client().ApplyURI(uri)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

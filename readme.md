@@ -16,6 +16,10 @@ A simple URL shortener service built with Go, Gin, MongoDB, and rate limiting. T
 Copy paste this code in your terminal
 
 ```
+docker-compose up --build
+```
+
+``` bash
 curl -X POST http://localhost:8080/shorten \
 -H "Content-Type: application/json" \
 -d '{
