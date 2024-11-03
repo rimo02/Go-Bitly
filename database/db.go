@@ -3,7 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
-	"github.com/patrickmn/go-cache"
+	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
@@ -12,9 +12,9 @@ import (
 )
 
 var (
-	Client  *mongo.Client
-	Cache   *cache.Cache
-	MaxHits = 1000
+	Client      *mongo.Client
+	RedisClient *redis.Client
+	MaxHits     = 100
 )
 
 func ConnectDB() *mongo.Client {
@@ -40,6 +40,38 @@ func ConnectDB() *mongo.Client {
 	return client
 }
 
+func ConnectRedis() *redis.Client {
+	redisAddr := os.Getenv("REDIS_ADDR")
+	redisPassword := os.Getenv("REDIS_PASSWORD")
+
+	RedisClient = redis.NewClient(&redis.Options{
+		Addr:     redisAddr,
+		Password: redisPassword,
+		DB:       0,
+	})
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := RedisClient.Ping(ctx).Result()
+	if err != nil {
+		log.Fatal("Could not connect to Redis: ", err)
+	}
+
+	fmt.Println("Connected to Redis")
+	return RedisClient
+}
+
 func GetCollection(client *mongo.Client, collectionName string) *mongo.Collection {
 	return client.Database("url-shortener").Collection(collectionName)
+}
+
+func SetCache(key string, value interface{}, expiration time.Duration) error {
+	ctx := context.Background()
+	return RedisClient.Set(ctx, key, value, expiration).Err()
+}
+
+func GetCache(key string) (string, error) {
+	ctx := context.Background()
+	return RedisClient.Get(ctx, key).Result()
 }

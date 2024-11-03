@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/patrickmn/go-cache"
 	"github.com/rimo02/url-shortener/database"
 	"github.com/rimo02/url-shortener/models"
 	"go.mongodb.org/mongo-driver/bson"
@@ -17,19 +16,21 @@ import (
 func GetTheUrl(c *gin.Context) {
 	shortUrl := c.Param("shorturl")
 
-	if cacheResult, found := database.Cache.Get(shortUrl); found {
-		result := cacheResult.(string)
+	ctx := context.Background()
+
+	cacheResult, err := database.GetCache(shortUrl)
+	if err == nil {
 		go incrementAndUpdateDB(shortUrl)
-		c.Redirect(http.StatusMovedPermanently, result)
+		c.Redirect(http.StatusMovedPermanently, cacheResult)
 		return
 	}
 
 	var result models.Response
 
 	collection := database.GetCollection(database.Client, os.Getenv("DB_COLLECTION"))
-	ctx, cancel := context.WithTimeout(context.TODO(), 20*time.Second)
+	dbctx, cancel := context.WithTimeout(context.TODO(), 20*time.Second)
 	defer cancel()
-	err := collection.FindOne(ctx, bson.M{"surl": shortUrl}).Decode(&result)
+	err = collection.FindOne(dbctx, bson.M{"surl": shortUrl}).Decode(&result)
 	if err == mongo.ErrNoDocuments { // add retry mechanism
 		for i := 0; i < 3; i++ {
 			time.Sleep(1 * time.Second)
@@ -50,7 +51,11 @@ func GetTheUrl(c *gin.Context) {
 	incrementAndUpdateDB(shortUrl)
 
 	if result.Hits > database.MaxHits {
-		database.Cache.Set(shortUrl, result.LongUrl, cache.DefaultExpiration)
+		err := database.SetCache(shortUrl, result.LongUrl, 1*time.Hour)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to cache in Redis"})
+			return
+		}
 	}
 
 	c.Redirect(http.StatusMovedPermanently, result.LongUrl)
