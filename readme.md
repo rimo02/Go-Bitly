@@ -9,7 +9,7 @@ A simple URL shortener service built with Go, Gin, MongoDB, and rate limiting. T
 - Rate Limiting: Limits the number of requests from a single IP to prevent abuse. Individual users are allowed upto maximum of 100 requests per hour.
 - Analytics: Tracks how many times each shortened URL has been clicked.
   MongoDB Integration: Stores shortened URLs, expiration times, and hit counts in MongoDB.
-- Added fucntionality for in-memory caching that stores the most frequently accessed urls for faster retrieval.
+- Added functionality for in-memory caching using Redis that stores the most frequently accessed urls for faster retrieval.
 
 ### Usage Example
 
