@@ -14,7 +14,7 @@ import (
 )
 
 func ShortenTheUrl(c *gin.Context) {
-
+	fmt.Println(c)
 	var req models.Request
 
 	collection := database.GetCollection(database.Client, os.Getenv("DB_COLLECTION"))
@@ -42,16 +42,17 @@ func ShortenTheUrl(c *gin.Context) {
 		defaultExpiry = userExpiry
 	}
 
-	expirationTime := int(time.Now().Add(time.Duration(defaultExpiry) * time.Second).Unix())
+	expirationTime := time.Now().Add(time.Duration(defaultExpiry) * time.Second)
+	localizedExpiration := expirationTime.Unix()
 
-	shortUrl := helper.Shortener(6) //generate a random string of 6 length total combinations = 62^6
+	shortUrl := helper.Shortener(6)
 	resp := &models.Response{
 		ID:              primitive.NewObjectID(),
 		LongUrl:         req.LongUrl,
 		ShortUrl:        shortUrl,
 		Hits:            0,
-		ExpiresAt:       expirationTime,
-		LastRequestTime: int(time.Now().Unix()),
+		LastRequestTime: time.Now().Unix(),
+		ExpiresAt:       localizedExpiration,
 	}
 	_, err := collection.InsertOne(ctx, resp)
 	if err != nil {

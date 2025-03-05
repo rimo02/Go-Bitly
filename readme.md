@@ -29,4 +29,4 @@ curl -X POST http://localhost:8080/shorten \
 }'
 ```
 
-You should get a sample shortened url as `http://localhost:8000/abc123`
+You should get a sample shortened url as `http://localhost:5000/abc123`
